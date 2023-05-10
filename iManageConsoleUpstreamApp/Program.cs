@@ -6,6 +6,7 @@ using iManageConsoleUpstreamApp.Db;
 using IronXL;
 using Newtonsoft.Json;
 using System.Data;
+using System.Globalization;
 using System.Text.Json.Nodes;
 using System.Web;
 
@@ -16,10 +17,10 @@ internal class Program
     {
         var recordset = DataRepository.GetFolderDocumentRecords();
 
-        while (recordset != null) { 
+        //while (recordset != null) { 
             //-.method call.
             FileUpstreamOperation();
-        }
+        //}
         //Console.ReadLine();
 
         Task.Delay(10).Wait();
@@ -82,9 +83,18 @@ internal class Program
     private static void CreateSubFolderFileLogic(string parentFolderName,string authToken,string customerId,string libraryName) 
     {
         int recordId;
-        string createdFolders = String.Empty;
-        string _class,custom1,custom2,custom29,parentId,documentPath,tailingPathPart;
-        string childFolderId = String.Empty;
+        string file = string.Empty;
+        string createdFolders = string.Empty;
+        string _class = string.Empty;
+        string custom1 = string.Empty;
+        string custom2 = string.Empty;
+        string custom29 = string.Empty;
+        string parentId = string.Empty;
+        string documentPath = string.Empty;
+        string tailingPathPart = string.Empty;
+        string childFolderId = string.Empty;
+        string createDate = string.Empty;
+        string editDate = string.Empty;
         //-.read from db.
         var recordset = DataRepository.GetFolderDocumentRecords();
         //-.convert recodset to json.
@@ -93,14 +103,16 @@ internal class Program
         foreach (var item in jsonObject)
         {
             recordId = item._id;
+            file = item.file;
             documentPath = item.folder_path;
             parentId = item.parent_folder_id;
             _class = item.@class;
             custom1 = item.custom1;
             custom2 = item.custom2;
             custom29 = item.custom29;
-            var jsonPayload = String.Empty;
-
+            createDate = item.create_date;
+            editDate = item.edit_date;
+            
             if (documentPath.Contains(parentFolderName) == true)
             {
                 string backslash = @"\";
@@ -116,8 +128,8 @@ internal class Program
                     {
                         //------.Console.WriteLine("<start> " + parentId + " " + subFolder[i]);
                         //------.Console.WriteLine("<LOOP_LOGIC> " + custom2);
-                        jsonPayload = BuildFolderCreationBodyPayload(_class, custom1, custom2, custom29, subFolder[i]);
-                        string serverResponse = InvokeFolderCreationApi(authToken, customerId, libraryName, parentId, jsonPayload);
+                        dynamic createFolderPayload = BuildFolderCreationBodyPayload(_class, custom1, custom2, custom29, subFolder[i]);
+                        string serverResponse = InvokeFolderCreationApi(authToken, customerId, libraryName, parentId, createFolderPayload);
                         Console.WriteLine(serverResponse);
                         //-.method call.
                         childFolderId = getParentFolderIdFromResponse(serverResponse);
@@ -129,15 +141,19 @@ internal class Program
                     {
                         if (subFolder[i].Contains(".") == false)
                         {
-                            jsonPayload = BuildFolderCreationBodyPayload(_class, custom1, custom2, custom29, subFolder[i]);
-                            string serverResponse = InvokeFolderCreationApi(authToken, customerId, libraryName, parentId, jsonPayload);
+                            dynamic createFolderPayload = BuildFolderCreationBodyPayload(_class, custom1, custom2, custom29, subFolder[i]);
+                            string serverResponse = InvokeFolderCreationApi(authToken, customerId, libraryName, parentId, createFolderPayload);
                             Console.WriteLine(serverResponse);
                             //-.method call.
                             childFolderId = getParentFolderIdFromResponse(serverResponse);
                         }
                         else
                         {
+                            createDate = FormatDateTime(createDate);
+                            editDate = FormatDateTime(editDate);
                             Console.WriteLine("<THIS IS OUR FILE> " + subFolder[i]);
+                            dynamic createFilePayload = BuildFileUploadFormPayload(file,createDate,editDate,documentPath);
+                            Console.WriteLine(createFilePayload);
                         }
                         //-----.Console.WriteLine("---> " + subFolder[i]+"   ddd  "+childFolderId +"  0000  "+ subFolder[i]);
                         //-.make as processed.
@@ -231,13 +247,13 @@ internal class Program
 
         return json;
     }
-    private static dynamic BuildFileUploadFormPayload(string fileName,string filePath) 
+    private static dynamic BuildFileUploadFormPayload(string fileName,string create_date,string edit_date,string filePath) 
     {
         DocProfile document = new DocProfile();
         document.comment = "FiLe-PaTh " + filePath;
         document.name = fileName;
-        document.file_create_date = "";
-        document.file_edit_date = "";
+        document.file_create_date = create_date.ToString();
+        document.file_edit_date = edit_date.ToString();
 
         Profile profile = new Profile();
         profile.doc_profile = document;
@@ -251,5 +267,11 @@ internal class Program
         Console.WriteLine(json);
 
         return json;
+    }
+    private static string FormatDateTime(string datetime) 
+    {
+        DateTime date = DateTime.ParseExact(datetime, "YYYY-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+        string formattedDate = date.ToString("YYYY-MM-dd HH:mm:ss");
+        return formattedDate;
     }
 }
