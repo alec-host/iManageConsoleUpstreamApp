@@ -132,7 +132,7 @@ internal class Program
             }
             else
             {
-                Console.WriteLine("PARENT FOLDER NOT FOUND.");
+                Console.WriteLine("PARENT FOLDER NOT FOUND..");
                 Task.Delay(100);
             }
         }
