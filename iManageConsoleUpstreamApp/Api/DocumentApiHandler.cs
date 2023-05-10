@@ -14,7 +14,6 @@
             request.Headers.Add("X-Auth-Token", token);
 
             var content = new MultipartFormDataContent();
-
             content.Add(new StringContent(payload),"profile");
             content.Add(new StreamContent(File.OpenRead(filePath)),"file",filePath);
             request.Content = content;

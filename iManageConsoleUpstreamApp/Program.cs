@@ -156,7 +156,7 @@ internal class Program
                             dynamic createFilePayload = BuildFileUploadFormPayload(file,createDate,editDate,documentPath);
                             Console.WriteLine(createFilePayload);
                             //-.method call.
-                            string serverResponse = InvokeFileUploadApi(authToken, customerId,libraryName,childFolderId,createFilePayload,documentPath);
+                            string serverResponse = InvokeFileUploadApi(authToken,customerId,libraryName,childFolderId,createFilePayload,documentPath);
                             Console.WriteLine(serverResponse);
                         }
                         //-----.Console.WriteLine("---> " + subFolder[i]+"   ddd  "+childFolderId +"  0000  "+ subFolder[i]);
@@ -253,10 +253,13 @@ internal class Program
     }
     private static dynamic BuildFileUploadFormPayload(string fileName,string create_date,string edit_date,string filePath) 
     {
+        //-.method call.
+        string fileExtension = GetFileExtension(fileName);
+
         DocProfile document = new DocProfile();
         document.comment = "FiLe-PaTh " + filePath;
-        document.name = fileName.Split(".")[0].Trim();
-        document.type = fileName.Split(".")[1].Trim();
+        document.name = fileName.Replace(fileExtension,"").Trim();
+        document.type = fileExtension.Replace(".","").ToUpper();
         document.file_create_date = create_date.ToString();
         document.file_edit_date = edit_date.ToString();
 
@@ -267,15 +270,18 @@ internal class Program
         root.profile = profile;
         root.file = filePath;
 
-        var json = JsonConvert.SerializeObject(root);
+        var json = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(root));
 
-        Console.WriteLine(json);
-
-        return json;
+        return JsonConvert.SerializeObject(json!.profile).ToString();
     }
     private static string FormatDateTime(string datetime) 
     {
         var formattedDate = Convert.ToDateTime(datetime, new DateTimeFormatInfo { FullDateTimePattern = "yyyy-MM-dd HH:mm:ss"});
-        return formattedDate.ToString("yyyy-MM-dd HH:mm:ss"); ;
+        return formattedDate.ToString("yyyy-MM-dd");
+    }
+    private static string GetFileExtension(string filePath) 
+    {
+        string fileExtension = Path.GetExtension(filePath).Trim();
+        return fileExtension;
     }
 }

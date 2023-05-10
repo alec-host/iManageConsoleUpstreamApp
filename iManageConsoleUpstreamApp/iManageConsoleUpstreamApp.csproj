@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="IronXL.Excel" Version="2023.5.4" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client.es" Version="5.2.9" />
     <PackageReference Include="MySql.Data" Version="8.0.33" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
