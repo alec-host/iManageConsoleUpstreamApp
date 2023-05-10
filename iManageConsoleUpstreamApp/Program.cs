@@ -22,11 +22,11 @@ internal class Program
         ITokenInterface tokenInterface = new AuthApiHandler();
         //-.client credentials.
         var collection = new List<KeyValuePair<string, string>>();
-        collection.Add(new("username", "wmarita@mkenga.dev.com"));
-        collection.Add(new("password", "Mc=\\EGZ$S#764$"));
+        collection.Add(new("username", "MY_EMAIL"));
+        collection.Add(new("password", "MY_PASSWORD"));
         collection.Add(new("grant_type", "password"));
-        collection.Add(new("client_id", "150b9570-c608-448c-97a3-d53600467095"));
-        collection.Add(new("client_secret", "dacd277e-2c9c-4bec-82f7-cb3bf2197d89"));
+        collection.Add(new("client_id", "MY_KEY"));
+        collection.Add(new("client_secret", "MY_SECRET"));
         //-.grant token url.
         string getTokenEndpoint = BASE_URL + "/auth/oauth2/token";
         //-.invoke grant token api.
