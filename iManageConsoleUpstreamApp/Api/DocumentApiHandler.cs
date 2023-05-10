@@ -7,7 +7,7 @@
         {
             this.token = token;
         }
-        public HttpResponseMessage HttpPostAttachedFile(string endPoint,string payload,string filePath)
+        public HttpResponseMessage HttpPostAttachedFile(string endPoint,dynamic payload,string filePath)
         {
             var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Post,endPoint);
