@@ -60,7 +60,7 @@ internal class Program
         //-.grant token url.
         string getTokenEndpoint = BASE_URL+"/auth/oauth2/token";
         //-.invoke grant token api.
-        HttpResponseMessage responseMessage = new HttpService(tokenInterface).GrantTokenService(getTokenEndpoint, collection);
+        HttpResponseMessage responseMessage = new HttpService(tokenInterface).GrantTokenService(getTokenEndpoint,collection);
         //-.extract token from json.
         string AUTH_TOKEN = getTokenFromJsonPayload(responseMessage);
         Console.WriteLine(AUTH_TOKEN);
@@ -70,10 +70,6 @@ internal class Program
         HttpResponseMessage discoverRespMessage = new HttpService(discoveryInterface).CustomerDiscoveryService(discoveryEndpoint);
         string[] CUSTOMER_DISCOVERY = getCustomerIdFromJsonPayload(discoverRespMessage);
         Console.WriteLine(CUSTOMER_DISCOVERY[0]);
-        //-.upload file.
-        IDocumentApiInterface documentApiInterface = new DocumentApiHandler(AUTH_TOKEN);
-        Task<string> something = new HttpService(documentApiInterface).FileUploadService(obj);
-        Console.WriteLine(">>>>>>>>>> "+something.Result);
         //-.method call.
         CreateSubFolderFileLogic("1011",AUTH_TOKEN, CUSTOMER_DISCOVERY[0], CUSTOMER_DISCOVERY[1]);
     }
@@ -203,13 +199,20 @@ internal class Program
         */
         //Console.WriteLine(listOfFolders);
     }
-    private static string InvokeFolderCreationApi(string token,string customerId,string libraryName,string parent_folder_id,dynamic payload) 
+    private static string InvokeFolderCreationApi(string token,string customerId,string libraryName,string parentFolderId,dynamic payload) 
     {
         IFolderApiInterface folderApiInterface = new DocumentApiHandler(token);
-        string createFolderEndpoint = BASE_URL + "/api/v2/customers/{0}/libraries/{1}/folders/{2}/subfolders".Replace("{0}", customerId).Replace("{1}",libraryName).Replace("{2}",parent_folder_id);
+        string createFolderEndpoint = BASE_URL + "/api/v2/customers/{0}/libraries/{1}/folders/{2}/subfolders".Replace("{0}", customerId).Replace("{1}",libraryName).Replace("{2}",parentFolderId);
         HttpResponseMessage response = new HttpService(folderApiInterface).CreateFolderService(createFolderEndpoint,payload);
         return response.Content.ReadAsStringAsync().Result;
     }
+    private static string InvokeFileUploadApi(string token,string customerId,string libraryName,string folderId) 
+    {
+        IDocumentApiInterface documentApiInterface = new DocumentApiHandler(token);
+        string getFileUploadEndpoint = BASE_URL + "/api/v2/customers/{0}/libraries/{1}/folders/{2}/documents".Replace("{0}",customerId).Replace("{1}",libraryName).Replace("{2}",folderId);
+        HttpResponseMessage response = new HttpService(documentApiInterface).FileUploadService(getFileUploadEndpoint,"","");
+        return response.Content.ReadAsStringAsync().Result;
+    } 
     private static string getTokenFromJsonPayload(HttpResponseMessage message) 
     {
         var json = JsonConvert.DeserializeObject<dynamic>(message.Content!.ReadAsStringAsync().Result);

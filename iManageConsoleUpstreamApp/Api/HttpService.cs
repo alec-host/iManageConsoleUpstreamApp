@@ -1,8 +1,4 @@
-﻿using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Tls;
-using System.Net;
-
-namespace iManageConsoleUpstreamApp.Api
+﻿namespace iManageConsoleUpstreamApp.Api
 {
     public class HttpService
     {
