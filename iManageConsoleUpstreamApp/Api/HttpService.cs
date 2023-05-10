@@ -1,5 +1,6 @@
 ﻿using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Tls;
+using System.Net;
 
 namespace iManageConsoleUpstreamApp.Api
 {
@@ -36,20 +37,12 @@ namespace iManageConsoleUpstreamApp.Api
             HttpResponseMessage serverResponse = discoveryInterface!.GetCustomerID(endPoint);
             return serverResponse;
         }
-        public async Task<string> FileUploadService(dynamic obj)
+        public HttpResponseMessage FileUploadService(string endPoint,dynamic payload,string filePath)
         {
             Console.Out.WriteLine("1. apiInterface: DOCUMENT_UPLOAD_SERVICE");
+            HttpResponseMessage serverResponse = documentApiInterface!.HttpPostAttachedFile(endPoint,payload,filePath);
 
-            await Task.Run(() =>
-            {
-                string serverResponse = documentApiInterface!.HttpPostAttachedFile("");
-
-                Console.Out.WriteLine("dddddddddddddd    " + serverResponse);
-                Task.Delay(1000).Wait();
-                return "VVVVVVVVVVVVVVVVV " + serverResponse;
-            });
-
-            return "END_DOCUMENT_UPLOAD_SERVICE";
+            return serverResponse;
         }
         public HttpResponseMessage CreateFolderService(string endpoint,string payload) 
         {
