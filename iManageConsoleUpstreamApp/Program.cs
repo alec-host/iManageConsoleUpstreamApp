@@ -270,8 +270,8 @@ internal class Program
     }
     private static string FormatDateTime(string datetime) 
     {
-        DateTime date = DateTime.ParseExact(datetime, "YYYY-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-        string formattedDate = date.ToString("YYYY-MM-dd HH:mm:ss");
-        return formattedDate;
+        //--.DateTime date = DateTime.ParseExact(datetime, "yyyy-mm-dd hh:mm:ss", CultureInfo.InvariantCulture);
+        var formattedDate = Convert.ToDateTime(datetime, new DateTimeFormatInfo { FullDateTimePattern = "yyyy-MM-dd HH:mm:ss"});
+        return formattedDate.ToString("yyyy-MM-dd HH:mm:ss"); ;
     }
 }
