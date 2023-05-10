@@ -25,30 +25,8 @@ internal class Program
         Task.Delay(10).Wait();
     }
 
-    private static void FileUpstreamOperation() {
-
-        Document document = new Document();
-        document.comment = "";
-        document.database = "";
-        document.default_security = "admin";
-        document.name = "test";
-        document.file_create_date = "";
-        document.file_edit_date = "";
-
-        Profile profile = new Profile();
-
-        profile.document = document;
-        profile.warnings_for_required_and_disabled_fields = true;
-
-        Root root = new Root();
-
-        root.profile = profile;
-        root.file = "";
-
-        var obj = JsonConvert.SerializeObject(root);
-
-        Console.WriteLine(obj);
-
+    private static void FileUpstreamOperation() 
+    {
         ITokenInterface tokenInterface = new AuthApiHandler();
         //-.client credentials.
         var collection = new List<KeyValuePair<string, string>>();
@@ -250,6 +228,32 @@ internal class Program
         folder.profile = profile;
 
         var json = JsonConvert.SerializeObject(folder);
+
+        return json;
+    }
+    private static dynamic BuildFileUploadFormPayload() 
+    {
+        Document document = new Document();
+        document.comment = "";
+        document.database = "";
+        document.default_security = "admin";
+        document.name = "test";
+        document.file_create_date = "";
+        document.file_edit_date = "";
+
+        Profile profile = new Profile();
+
+        profile.document = document;
+        profile.warnings_for_required_and_disabled_fields = true;
+
+        Root root = new Root();
+
+        root.profile = profile;
+        root.file = "";
+
+        var json = JsonConvert.SerializeObject(root);
+
+        Console.WriteLine(json);
 
         return json;
     }

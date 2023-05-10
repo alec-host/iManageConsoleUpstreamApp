@@ -9,7 +9,7 @@ namespace iManageConsoleUpstreamApp.Api.DocumentPoco
 {
     public class Profile
     {
-        public Document? document { get; set; }
+        public DocProfile? doc_profile { get; set; }
         public bool warnings_for_required_and_disabled_fields { get; set; } = true;
     }
     
