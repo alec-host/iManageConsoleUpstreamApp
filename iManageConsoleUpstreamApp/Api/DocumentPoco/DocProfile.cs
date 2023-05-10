@@ -13,7 +13,7 @@ namespace iManageConsoleUpstreamApp.Api.Payload
         public string? default_security { get; set; } = "public";
         public string? name { get; set; }
         public string? type { get; set; }
-        public string? wstype { get; set; }
+        public string? wstype { get; set; } = "document";
         public string? file_create_date { get; set; }
         public string? file_edit_date { get; set; }
     }

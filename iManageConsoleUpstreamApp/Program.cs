@@ -251,7 +251,8 @@ internal class Program
     {
         DocProfile document = new DocProfile();
         document.comment = "FiLe-PaTh " + filePath;
-        document.name = fileName;
+        document.name = fileName.Split(".")[0].Trim();
+        document.type = fileName.Split(".")[1].Trim();
         document.file_create_date = create_date.ToString();
         document.file_edit_date = edit_date.ToString();
 
@@ -270,7 +271,6 @@ internal class Program
     }
     private static string FormatDateTime(string datetime) 
     {
-        //--.DateTime date = DateTime.ParseExact(datetime, "yyyy-mm-dd hh:mm:ss", CultureInfo.InvariantCulture);
         var formattedDate = Convert.ToDateTime(datetime, new DateTimeFormatInfo { FullDateTimePattern = "yyyy-MM-dd HH:mm:ss"});
         return formattedDate.ToString("yyyy-MM-dd HH:mm:ss"); ;
     }
