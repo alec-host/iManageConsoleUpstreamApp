@@ -1,9 +1,7 @@
 ﻿using iManageConsoleUpstreamApp;
 using iManageConsoleUpstreamApp.Api;
 using iManageConsoleUpstreamApp.Db;
-using IronXL;
 using Newtonsoft.Json;
-using System.Data;
 
 internal class Program
 {
