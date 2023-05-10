@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace iManageConsoleUpstreamApp.Api.Payload
 {
-    public class Document
+    public class DocProfile
     {
         public string? comment { get; set; }
         public string? database { get; set; }
