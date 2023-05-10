@@ -231,25 +231,20 @@ internal class Program
 
         return json;
     }
-    private static dynamic BuildFileUploadFormPayload() 
+    private static dynamic BuildFileUploadFormPayload(string fileName,string filePath) 
     {
-        Document document = new Document();
-        document.comment = "";
-        document.database = "";
-        document.default_security = "admin";
-        document.name = "test";
+        DocProfile document = new DocProfile();
+        document.comment = "FiLe-PaTh " + filePath;
+        document.name = fileName;
         document.file_create_date = "";
         document.file_edit_date = "";
 
         Profile profile = new Profile();
-
-        profile.document = document;
-        profile.warnings_for_required_and_disabled_fields = true;
+        profile.doc_profile = document;
 
         Root root = new Root();
-
         root.profile = profile;
-        root.file = "";
+        root.file = filePath;
 
         var json = JsonConvert.SerializeObject(root);
 
