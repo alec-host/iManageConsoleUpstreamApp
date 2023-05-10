@@ -5,6 +5,7 @@ using iManageConsoleUpstreamApp.Api.Payload;
 using iManageConsoleUpstreamApp.Db;
 using IronXL;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Data;
 using System.Globalization;
 using System.Text.Json.Nodes;
@@ -83,18 +84,18 @@ internal class Program
     private static void CreateSubFolderFileLogic(string parentFolderName,string authToken,string customerId,string libraryName) 
     {
         int recordId;
-        string file = string.Empty;
-        string createdFolders = string.Empty;
-        string _class = string.Empty;
-        string custom1 = string.Empty;
-        string custom2 = string.Empty;
-        string custom29 = string.Empty;
-        string parentId = string.Empty;
-        string documentPath = string.Empty;
-        string tailingPathPart = string.Empty;
-        string childFolderId = string.Empty;
-        string createDate = string.Empty;
-        string editDate = string.Empty;
+        string file = String.Empty;
+        string createdFolders = String.Empty;
+        string _class = String.Empty;
+        string custom1 = String.Empty;
+        string custom2 = String.Empty;
+        string custom29 = String.Empty;
+        string parentId = String.Empty;
+        string documentPath = String.Empty;
+        string tailingPathPart = String.Empty;
+        string childFolderId = String.Empty;
+        string createDate = String.Empty;
+        string editDate = String.Empty;
         //-.read from db.
         var recordset = DataRepository.GetFolderDocumentRecords();
         //-.convert recodset to json.
@@ -154,6 +155,9 @@ internal class Program
                             Console.WriteLine("<THIS IS OUR FILE> " + subFolder[i]);
                             dynamic createFilePayload = BuildFileUploadFormPayload(file,createDate,editDate,documentPath);
                             Console.WriteLine(createFilePayload);
+                            //-.method call.
+                            string serverResponse = InvokeFileUploadApi(authToken, customerId,libraryName,childFolderId,createFilePayload,documentPath);
+                            Console.WriteLine(serverResponse);
                         }
                         //-----.Console.WriteLine("---> " + subFolder[i]+"   ddd  "+childFolderId +"  0000  "+ subFolder[i]);
                         //-.make as processed.
@@ -200,11 +204,11 @@ internal class Program
         HttpResponseMessage response = new HttpService(folderApiInterface).CreateFolderService(createFolderEndpoint,payload);
         return response.Content.ReadAsStringAsync().Result;
     }
-    private static string InvokeFileUploadApi(string token,string customerId,string libraryName,string folderId) 
+    private static string InvokeFileUploadApi(string token,string customerId,string libraryName,string folderId,dynamic payload,string filePath) 
     {
         IDocumentApiInterface documentApiInterface = new DocumentApiHandler(token);
         string getFileUploadEndpoint = BASE_URL + "/api/v2/customers/{0}/libraries/{1}/folders/{2}/documents".Replace("{0}",customerId).Replace("{1}",libraryName).Replace("{2}",folderId);
-        HttpResponseMessage response = new HttpService(documentApiInterface).FileUploadService(getFileUploadEndpoint,"","");
+        HttpResponseMessage response = new HttpService(documentApiInterface).FileUploadService(getFileUploadEndpoint,payload,filePath);
         return response.Content.ReadAsStringAsync().Result;
     } 
     private static string getTokenFromJsonPayload(HttpResponseMessage message) 
