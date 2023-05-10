@@ -1,12 +1,9 @@
-﻿using iManageConsoleUpstreamApp.Api;
-using iManageConsoleUpstreamApp.Api.DocumentPoco;
-using iManageConsoleUpstreamApp.Api.FolderPoco;
-using iManageConsoleUpstreamApp.Api.Payload;
+﻿using iManageConsoleUpstreamApp;
+using iManageConsoleUpstreamApp.Api;
 using iManageConsoleUpstreamApp.Db;
 using IronXL;
 using Newtonsoft.Json;
 using System.Data;
-using System.Globalization;
 
 internal class Program
 {
@@ -16,15 +13,13 @@ internal class Program
         var recordset = DataRepository.GetFolderDocumentRecords();
 
         //while (recordset != null) { 
-            //-.method call.
-            FileUpstreamOperation();
-        //}
-        //Console.ReadLine();
+        //-.method call.
+        FileUpstreamOperation();
+        //};
 
         Task.Delay(10).Wait();
     }
-
-    private static void FileUpstreamOperation() 
+    private static void FileUpstreamOperation()
     {
         ITokenInterface tokenInterface = new AuthApiHandler();
         //-.client credentials.
@@ -35,50 +30,21 @@ internal class Program
         collection.Add(new("client_id", "150b9570-c608-448c-97a3-d53600467095"));
         collection.Add(new("client_secret", "dacd277e-2c9c-4bec-82f7-cb3bf2197d89"));
         //-.grant token url.
-        string getTokenEndpoint = BASE_URL+"/auth/oauth2/token";
+        string getTokenEndpoint = BASE_URL + "/auth/oauth2/token";
         //-.invoke grant token api.
-        HttpResponseMessage responseMessage = new HttpService(tokenInterface).GrantTokenService(getTokenEndpoint,collection);
+        HttpResponseMessage responseMessage = new HttpService(tokenInterface).GrantTokenService(getTokenEndpoint, collection);
         //-.extract token from json.
-        string AUTH_TOKEN = getTokenFromJsonPayload(responseMessage);
+        string AUTH_TOKEN = ProgramJson.getTokenFromJsonPayload(responseMessage);
         Console.WriteLine(AUTH_TOKEN);
         //-.customer discovery.
         ICustomerDiscoveryInterface discoveryInterface = new DiscoveryApiHandler(AUTH_TOKEN);
-        string discoveryEndpoint = BASE_URL+"/api";
+        string discoveryEndpoint = BASE_URL + "/api";
         HttpResponseMessage discoverRespMessage = new HttpService(discoveryInterface).CustomerDiscoveryService(discoveryEndpoint);
-        string[] CUSTOMER_DISCOVERY = getCustomerIdFromJsonPayload(discoverRespMessage);
-        Console.WriteLine(CUSTOMER_DISCOVERY[0]);
+        string[] CUSTOMER_DISCOVERY = ProgramJson.getCustomerIdFromJsonPayload(discoverRespMessage);
         //-.method call.
-        CreateSubFolderFileLogic("1011",AUTH_TOKEN, CUSTOMER_DISCOVERY[0], CUSTOMER_DISCOVERY[1]);
+        CreateSubFolderFileLogic("1011", AUTH_TOKEN, CUSTOMER_DISCOVERY[0], CUSTOMER_DISCOVERY[1]);
     }
-
-
-    private static void readExcel()
-    {
-        WorkBook book =  WorkBook.Load("C:\\Users\\admin\\Downloads\\Sample Unstructured Upstream.xlsx");
-        WorkSheet sheet = book.DefaultWorkSheet;
-        DataSet dataSet = book.ToDataSet(true);
-        book.SaveAsJson("C:\\Users\\admin\\Downloads\\Sample.json");
-         
-        /*
-        foreach (var cell in sheet["A2:"]) {
-            Console.WriteLine(cell.Value);
-        }
-        */
-        
-        foreach (DataTable table in dataSet.Tables)
-        {
-            foreach (DataRow row in table.Rows)
-            {
-                for (int i = 0; i < table.Columns.Count; i++)
-                {
-                    Console.Write(row[i]);
-                }
-            }
-        }
-
-    }
-
-    private static void CreateSubFolderFileLogic(string parentFolderName,string authToken,string customerId,string libraryName) 
+    private static void CreateSubFolderFileLogic(string parentFolderName, string authToken, string customerId, string libraryName)
     {
         int recordId;
         string file = String.Empty;
@@ -110,7 +76,7 @@ internal class Program
             custom29 = item.custom29;
             createDate = item.create_date;
             editDate = item.edit_date;
-            
+
             if (documentPath.Contains(parentFolderName) == true)
             {
                 string backslash = @"\";
@@ -126,11 +92,11 @@ internal class Program
                     {
                         //------.Console.WriteLine("<start> " + parentId + " " + subFolder[i]);
                         //------.Console.WriteLine("<LOOP_LOGIC> " + custom2);
-                        dynamic createFolderPayload = BuildFolderCreationBodyPayload(_class, custom1, custom2, custom29, subFolder[i]);
+                        dynamic createFolderPayload = ProgramJson.BuildFolderCreationBodyPayload(_class, custom1, custom2, custom29, subFolder[i]);
                         string serverResponse = InvokeFolderCreationApi(authToken, customerId, libraryName, parentId, createFolderPayload);
                         Console.WriteLine(serverResponse);
                         //-.method call.
-                        childFolderId = getParentFolderIdFromResponse(serverResponse);
+                        childFolderId = ProgramJson.getParentFolderIdFromResponse(serverResponse);
                         Console.WriteLine(childFolderId);
                         //-.make as processed.
                         DataRepository.FlagRecordAsProcessed(recordId);
@@ -139,21 +105,21 @@ internal class Program
                     {
                         if (subFolder[i].Contains(".") == false)
                         {
-                            dynamic createFolderPayload = BuildFolderCreationBodyPayload(_class, custom1, custom2, custom29, subFolder[i]);
+                            dynamic createFolderPayload = ProgramJson.BuildFolderCreationBodyPayload(_class, custom1, custom2, custom29, subFolder[i]);
                             string serverResponse = InvokeFolderCreationApi(authToken, customerId, libraryName, parentId, createFolderPayload);
                             Console.WriteLine(serverResponse);
                             //-.method call.
-                            childFolderId = getParentFolderIdFromResponse(serverResponse);
+                            childFolderId = ProgramJson.getParentFolderIdFromResponse(serverResponse);
                         }
                         else
                         {
-                            createDate = FormatDateTime(createDate);
-                            editDate = FormatDateTime(editDate);
+                            createDate = ProgramUtility.FormatDateTime(createDate);
+                            editDate = ProgramUtility.FormatDateTime(editDate);
                             Console.WriteLine("<THIS IS OUR FILE> " + subFolder[i]);
-                            dynamic createFilePayload = BuildFileUploadFormPayload(file,createDate,editDate,documentPath);
+                            dynamic createFilePayload = ProgramJson.BuildFileUploadFormPayload(file, createDate, editDate, documentPath);
                             Console.WriteLine(createFilePayload);
                             //-.method call.
-                            string serverResponse = InvokeFileUploadApi(authToken,customerId,libraryName,childFolderId,createFilePayload,documentPath);
+                            string serverResponse = InvokeFileUploadApi(authToken, customerId, libraryName, childFolderId, createFilePayload, documentPath);
                             Console.WriteLine(serverResponse);
                         }
                         //-----.Console.WriteLine("---> " + subFolder[i]+"   ddd  "+childFolderId +"  0000  "+ subFolder[i]);
@@ -162,103 +128,27 @@ internal class Program
                     }
                     createdFolders += backslash + subFolder[i];
                 }
-                //----.Console.WriteLine(documentPath);
-                Task.Delay(1000);
-                //System.Environment.Exit(0);
+                Task.Delay(100);
             }
             else
             {
                 Console.WriteLine("PARENT FOLDER NOT FOUND.");
-                Task.Delay(1000);
-                //System.Environment.Exit(0);
+                Task.Delay(100);
             }
         }
     }
-    private static string InvokeFolderCreationApi(string token,string customerId,string libraryName,string parentFolderId,dynamic payload) 
+    private static string InvokeFolderCreationApi(string token, string customerId, string libraryName, string parentFolderId, dynamic payload)
     {
         IFolderApiInterface folderApiInterface = new DocumentApiHandler(token);
-        string createFolderEndpoint = BASE_URL + "/api/v2/customers/{0}/libraries/{1}/folders/{2}/subfolders".Replace("{0}", customerId).Replace("{1}",libraryName).Replace("{2}",parentFolderId);
-        HttpResponseMessage response = new HttpService(folderApiInterface).CreateFolderService(createFolderEndpoint,payload);
+        string createFolderEndpoint = BASE_URL + "/api/v2/customers/{0}/libraries/{1}/folders/{2}/subfolders".Replace("{0}", customerId).Replace("{1}", libraryName).Replace("{2}", parentFolderId);
+        HttpResponseMessage response = new HttpService(folderApiInterface).CreateFolderService(createFolderEndpoint, payload);
         return response.Content.ReadAsStringAsync().Result;
     }
-    private static string InvokeFileUploadApi(string token,string customerId,string libraryName,string folderId,dynamic payload,string filePath) 
+    private static string InvokeFileUploadApi(string token, string customerId, string libraryName, string folderId, dynamic payload, string filePath)
     {
         IDocumentApiInterface documentApiInterface = new DocumentApiHandler(token);
-        string getFileUploadEndpoint = BASE_URL + "/api/v2/customers/{0}/libraries/{1}/folders/{2}/documents".Replace("{0}",customerId).Replace("{1}",libraryName).Replace("{2}",folderId);
-        HttpResponseMessage response = new HttpService(documentApiInterface).FileUploadService(getFileUploadEndpoint,payload,filePath);
+        string getFileUploadEndpoint = BASE_URL + "/api/v2/customers/{0}/libraries/{1}/folders/{2}/documents".Replace("{0}", customerId).Replace("{1}", libraryName).Replace("{2}", folderId);
+        HttpResponseMessage response = new HttpService(documentApiInterface).FileUploadService(getFileUploadEndpoint, payload, filePath);
         return response.Content.ReadAsStringAsync().Result;
-    } 
-    private static string getTokenFromJsonPayload(HttpResponseMessage message) 
-    {
-        var json = JsonConvert.DeserializeObject<dynamic>(message.Content!.ReadAsStringAsync().Result);
-        return json!.access_token.ToString();
-    }
-    private static string[] getCustomerIdFromJsonPayload(HttpResponseMessage message) 
-    {
-        string[] myArray;
-        var json = JsonConvert.DeserializeObject<dynamic>(message.Content!.ReadAsStringAsync().Result);
-        string customer_id = json!.data.user.customer_id.ToString();
-        string libraryName = json!.data.work.libraries[0].alias.ToString();
-        myArray = new string[] {customer_id,libraryName};
-        return myArray;
-    }
-    private static string getParentFolderIdFromResponse(string serverResponse) 
-    {
-        dynamic? json = JsonConvert.DeserializeObject(serverResponse);
-
-        return json!.data.id;
-    }
-    private static dynamic BuildFolderCreationBodyPayload(string @class,string custom1,string custom2,string custom29,string name) 
-    {
-        FolderProfile profile = new FolderProfile();
-
-        profile.@class = @class;
-        profile.custom1 = custom1;
-        profile.custom2 = custom2;
-        profile.custom29 = custom29;
-
-        Folder folder = new Folder();
-
-        folder.name = name;
-        folder.description = "Created using a c# solution.";
-        folder.location = name;
-        folder.profile = profile;
-
-        var json = JsonConvert.SerializeObject(folder);
-
-        return json;
-    }
-    private static dynamic BuildFileUploadFormPayload(string fileName,string create_date,string edit_date,string filePath) 
-    {
-        //-.method call.
-        string fileExtension = GetFileExtension(fileName);
-
-        DocProfile document = new DocProfile();
-        document.comment = "FiLe-PaTh " + filePath;
-        document.name = fileName.Replace(fileExtension,"").Trim();
-        document.type = fileExtension.Replace(".","").ToUpper();
-        document.file_create_date = create_date.ToString();
-        document.file_edit_date = edit_date.ToString();
-
-        Profile profile = new Profile();
-        profile.doc_profile = document;
-
-        Root root = new Root();
-        root.profile = profile;
-        root.file = filePath;
-
-        var json = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(root));
-
-        return JsonConvert.SerializeObject(json!.profile).ToString();
-    }
-    private static string FormatDateTime(string datetime) 
-    {
-        var formattedDate = Convert.ToDateTime(datetime, new DateTimeFormatInfo { FullDateTimePattern = "yyyy-MM-dd HH:mm:ss"});
-        return formattedDate.ToString("yyyy-MM-dd");
-    }
-    private static string GetFileExtension(string filePath) 
-    {
-        string fileExtension = Path.GetExtension(filePath).Trim();
-        return fileExtension;
     }
 }
