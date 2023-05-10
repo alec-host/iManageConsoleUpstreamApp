@@ -5,15 +5,12 @@ using iManageConsoleUpstreamApp.Api.Payload;
 using iManageConsoleUpstreamApp.Db;
 using IronXL;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Data;
 using System.Globalization;
-using System.Text.Json.Nodes;
-using System.Web;
 
 internal class Program
 {
-    private const  string BASE_URL = "https://cloudimanage.com";
+    private const string BASE_URL = "https://cloudimanage.com";
     private static void Main(string[] args)
     {
         var recordset = DataRepository.GetFolderDocumentRecords();
@@ -176,26 +173,6 @@ internal class Program
                 //System.Environment.Exit(0);
             }
         }
-    }
-
-    private static void createSubFolder_test(string parentFolderName)
-    {
-        string listOfFolders = String.Empty;
-        //string documentPath = "C:\\Users\\wycli\\Downloads\\Alan A Houston Esq\\Alan A Houston Esq\\1011\\009\\Email\\A Cowboy Says it Best.msg";
-        //string tailingPathPart = documentPath.Substring(documentPath.IndexOf(parentFolderName) + parentFolderName.Length);
-
-        //string[] subFolder = tailingPathPart.Split("\\");
-
-
-        /*
-        for (int i=1;i< subFolder.Length-1;i++) {
-            Console.WriteLine("---> " + subFolder[i]);
-            listOfFolders += "\\"+subFolder[i];
-        }
-        
-        Console.WriteLine(tailingPathPart);
-        */
-        //Console.WriteLine(listOfFolders);
     }
     private static string InvokeFolderCreationApi(string token,string customerId,string libraryName,string parentFolderId,dynamic payload) 
     {
