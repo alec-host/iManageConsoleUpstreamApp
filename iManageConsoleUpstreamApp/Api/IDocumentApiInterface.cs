@@ -8,6 +8,6 @@ namespace iManageConsoleUpstreamApp.Api
 {
     public interface IDocumentApiInterface
     {
-        string HttpPostAttachedFile(string endPoint);
+        HttpResponseMessage HttpPostAttachedFile(string endPoint,string payload,string filePath);
     }
 }

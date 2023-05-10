@@ -7,9 +7,19 @@
         {
             this.token = token;
         }
-        public string HttpPostAttachedFile(string endPoint)
+        public HttpResponseMessage HttpPostAttachedFile(string endPoint,string payload,string filePath)
         {
-            return "UPSTREAM SERVICE 1234";
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post,endPoint);
+            request.Headers.Add("X-Auth-Token", token);
+
+            var content = new MultipartFormDataContent();
+
+            content.Add(new StringContent(payload),"profile");
+            content.Add(new StreamContent(File.OpenRead(filePath)),"file",filePath);
+            request.Content = content;
+            var response = client.SendAsync(request);
+            return response.GetAwaiter().GetResult();
         }
         public HttpResponseMessage HttpPostCreateSubFolder(string endPoint,string payload)
         {
