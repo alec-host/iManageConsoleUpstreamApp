@@ -7,21 +7,35 @@ namespace iManageConsoleUpstreamApp
 {
     public class ProgramJson
     {
-        public static string getTokenFromJsonPayload(HttpResponseMessage message)
+        public static string? GetAuthTokenFromResponse(HttpResponseMessage message)
         {
-            var json = JsonConvert.DeserializeObject<dynamic>(message.Content!.ReadAsStringAsync().Result);
-            return json!.access_token.ToString();
+            if (message.StatusCode.Equals(200))
+            {
+                var json = JsonConvert.DeserializeObject<dynamic>(message.Content!.ReadAsStringAsync().Result);
+                return json!.access_token.ToString();
+            }
+            else 
+            {
+                return null;
+            }
         }
-        public static string[] getCustomerIdFromJsonPayload(HttpResponseMessage message)
+        public static string[] GetCustomerIdFromJsonPayload(HttpResponseMessage message)
         {
             string[] myArray;
             var json = JsonConvert.DeserializeObject<dynamic>(message.Content!.ReadAsStringAsync().Result);
-            string customer_id = json!.data.user.customer_id.ToString();
-            string libraryName = json!.data.work.libraries[0].alias.ToString();
-            myArray = new string[] { customer_id, libraryName };
+            if (json?.ToString().Contains("not-authenticated") == false)
+            {
+                string customer_id = json!.data.user.customer_id.ToString();
+                string libraryName = json!.data.work.libraries[0].alias.ToString();
+                myArray = new string[] { customer_id, libraryName };
+            }
+            else 
+            {
+                myArray = new string[] { string.Empty, string.Empty };
+            }
             return myArray;
         }
-        public static string getParentFolderIdFromResponse(string serverResponse)
+        public static string GetParentFolderIdFromResponse(string serverResponse)
         {
             dynamic? json = JsonConvert.DeserializeObject(serverResponse);
 
