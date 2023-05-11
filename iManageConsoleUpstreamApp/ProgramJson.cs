@@ -1,4 +1,5 @@
-﻿using iManageConsoleUpstreamApp.Api.DocumentPoco;
+﻿using Google.Protobuf;
+using iManageConsoleUpstreamApp.Api.DocumentPoco;
 using iManageConsoleUpstreamApp.Api.FolderPoco;
 using iManageConsoleUpstreamApp.Api.Payload;
 using Newtonsoft.Json;
@@ -9,13 +10,15 @@ namespace iManageConsoleUpstreamApp
     {
         public static string? GetAuthTokenFromResponse(HttpResponseMessage message)
         {
-            if (message.StatusCode.Equals(200))
+            Console.Out.WriteLine(message.IsSuccessStatusCode);
+            if (message.IsSuccessStatusCode == true)
             {
                 var json = JsonConvert.DeserializeObject<dynamic>(message.Content!.ReadAsStringAsync().Result);
                 return json!.access_token.ToString();
             }
             else 
             {
+                Console.Out.WriteLine("simple");
                 return null;
             }
         }

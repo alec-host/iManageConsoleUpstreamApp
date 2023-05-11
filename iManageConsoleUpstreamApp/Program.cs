@@ -20,6 +20,7 @@ internal class Program
     private static void UpstreamOperation(dynamic recordset)
     {
         string? AUTH_TOKEN = ProgramJson.GetAuthTokenFromResponse(GrantAuthTokenRequest());
+        Console.WriteLine(AUTH_TOKEN);
         if (AUTH_TOKEN is not null)
         {
             //-.customer discovery.
@@ -138,12 +139,13 @@ internal class Program
     {
         //-.client credentials.
         var collection = new List<KeyValuePair<string, string>>();
+        
         collection.Add(new("username", "MY_EMAIL"));
         collection.Add(new("password", "MY_PASSWORD"));
         collection.Add(new("grant_type", "password"));
         collection.Add(new("client_id", "MY_KEY"));
         collection.Add(new("client_secret", "MY_SECRET"));
-
+        
         ITokenInterface tokenInterface = new AuthApiHandler();
         string getTokenEndpoint = BASE_URL + "/auth/oauth2/token";
         HttpResponseMessage responseMessage = new HttpService(tokenInterface).GrantTokenService(getTokenEndpoint, collection);
