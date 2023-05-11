@@ -8,6 +8,7 @@ internal class Program
     private const string BASE_URL = "https://cloudimanage.com";
     private static void Main(string[] args)
     {
+        //DataRepository.CreateSubFolderTrackerSchema();
         var recordset = DataRepository.GetFolderDocumentRecords();
 
         //while (recordset != null) { 
@@ -54,6 +55,7 @@ internal class Program
         string parentId = String.Empty;
         string documentPath = String.Empty;
         string tailingPathPart = String.Empty;
+        string firstChildFolderId = String.Empty;
         string childFolderId = String.Empty;
         string createDate = String.Empty;
         string editDate = String.Empty;
@@ -92,12 +94,14 @@ internal class Program
                         //------.Console.WriteLine("<LOOP_LOGIC> " + custom2);
                         if (createdFolders.Trim().Contains(subFolder[i]) == false)
                         {
-                            dynamic createFolderPayload = ProgramJson.BuildFolderCreationBodyPayload(_class, custom1, custom2, custom29, subFolder[i]);
-                            string serverResponse = FolderCreateRequest(authToken, customerId, libraryName, parentId, createFolderPayload);
+                            dynamic createFolderPayload = ProgramJson.BuildFolderCreationBodyPayload(_class,custom1,custom2,custom29,subFolder[i]);
+                            string serverResponse = FolderCreateRequest(authToken,customerId,libraryName,parentId,createFolderPayload);
                             Console.WriteLine(serverResponse);
                             //-.method call.
-                            childFolderId = ProgramJson.GetParentFolderIdFromResponse(serverResponse);
-                            Console.WriteLine(childFolderId);
+                            firstChildFolderId = ProgramJson.GetParentFolderIdFromResponse(serverResponse);
+                            Console.WriteLine(firstChildFolderId);
+                            //-.store to db foldername against parent id.
+                            DataRepository.TrackSubFolderCreatedInformation(subFolder[i],parentId);
                         }
                         else 
                         { 
@@ -110,11 +114,27 @@ internal class Program
                         {
                             if (createdFolders.Trim().Contains(subFolder[i]) == false)
                             {
-                                dynamic createFolderPayload = ProgramJson.BuildFolderCreationBodyPayload(_class, custom1, custom2, custom29, subFolder[i]);
-                                string serverResponse = FolderCreateRequest(authToken, customerId, libraryName, parentId, createFolderPayload);
-                                Console.WriteLine(serverResponse);
-                                //-.method call.
-                                childFolderId = ProgramJson.GetParentFolderIdFromResponse(serverResponse);
+                                dynamic createFolderPayload = ProgramJson.BuildFolderCreationBodyPayload(_class,custom1,custom2,custom29,subFolder[i]);
+                                if (firstChildFolderId.Trim().Length != 0)
+                                {
+                                    string serverResponse = FolderCreateRequest(authToken,customerId,libraryName,firstChildFolderId,createFolderPayload);
+                                    Console.WriteLine(serverResponse);
+                                    //-.method call.
+                                    childFolderId = ProgramJson.GetParentFolderIdFromResponse(serverResponse);
+                                    //-.store to db foldername against parent id.
+                                    DataRepository.TrackSubFolderCreatedInformation(subFolder[i],firstChildFolderId);
+                                    Console.WriteLine("Am boxed by the Parent "+firstChildFolderId);
+                                }
+                                else 
+                                {
+                                    string serverResponse = FolderCreateRequest(authToken,customerId,libraryName,childFolderId,createFolderPayload);
+                                    Console.WriteLine(serverResponse);
+                                    //-.method call.
+                                    childFolderId = ProgramJson.GetParentFolderIdFromResponse(serverResponse);
+                                    //-.store to db foldername against parent id.
+                                    DataRepository.TrackSubFolderCreatedInformation(subFolder[i],childFolderId);
+                                    Console.WriteLine("The other Guy");
+                                }
                             }
                             else 
                             {

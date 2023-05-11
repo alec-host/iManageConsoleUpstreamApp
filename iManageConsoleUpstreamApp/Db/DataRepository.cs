@@ -117,13 +117,13 @@ namespace iManageConsoleUpstreamApp.Db
                              "INTO " +
                              "`tbl_sub_folder` " +
                              "(`folder_name`,`parent_folder_id`) " +
-                             "VALUES  " +
+                             "VALUES " +
                              "(@folderName,@folderId) " +
-                             "WHERE " +
-                             "`parent_folder_id` != @folderId";
+                             "ON DUPLICATE KEY UPDATE `parent_folder_id` = @folderId";
                 MySqlCommand cmd = new MySqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@folderName", createdFolderName);
                 cmd.Parameters.AddWithValue ("@folderId", parentFolderId);
+                //cmd.Parameters.AddWithValue("@folderId2", parentFolderId);
                 cmd.ExecuteNonQuery();
                 conn.Close();
         }
