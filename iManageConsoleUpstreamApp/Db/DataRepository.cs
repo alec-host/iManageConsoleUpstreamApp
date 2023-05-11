@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using Org.BouncyCastle.Tls;
 using System.Data;
 
 namespace iManageConsoleUpstreamApp.Db
@@ -106,6 +107,25 @@ namespace iManageConsoleUpstreamApp.Db
                 cmd.Parameters.AddWithValue("@recordID",recordID);
                 cmd.ExecuteNonQuery();
                 conn.Close();
+        }
+        public static void TrackSubFolderId(string createdFolderName,string parentFolderId) 
+        {
+            MySqlConnection conn = new Db().MySqlDbConnectService();
+            if (conn.State == ConnectionState.Closed)
+                conn.Open();
+            string sql = "INSERT " +
+                         "INTO " +
+                         "`tbl_sub_folder` " +
+                         "(`folder_name`,`parent_folder_id`) " +
+                         "VALUES  " +
+                         "(@folderName,@folderId) " +
+                         "WHERE " +
+                         "`parent_folder_id` != @folderId";
+            MySqlCommand cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@folderName", createdFolderName);
+            cmd.Parameters.AddWithValue ("@folderId", parentFolderId);
+            cmd.ExecuteNonQuery();
+            conn.Close();
         }
     }
 }
