@@ -14,7 +14,7 @@ namespace iManageConsoleUpstreamApp.Db
                     conn.Open();
 
                     string sql =
-                        "CREATE TABLE IF NOT EXISTS `tbl_file_info_` ( " +
+                        "CREATE TABLE IF NOT EXISTS `tbl_file_info` ( " +
                             "`_id` INT(10) NOT NULL AUTO_INCREMENT, " +
                             "`file` VARCHAR(100) NOT NULL COLLATE 'utf8mb4_general_ci', " +
                             "`folder_path` VARCHAR(250) NOT NULL COLLATE 'utf8mb4_general_ci', " +
@@ -40,6 +40,32 @@ namespace iManageConsoleUpstreamApp.Db
                     cmd.ExecuteNonQuery();
 
                     conn.Close();
+            }
+        }
+        public static void CreateSubFolderTrackerSchema()
+        {
+            using (MySqlConnection conn = new Db().MySqlDbConnectService())
+            {
+                if (conn.State == ConnectionState.Closed)
+
+                    conn.Open();
+
+                string sql =
+                    "CREATE TABLE IF NOT EXISTS `tbl_sub_folder` ( " +
+                        "`_id` INT(10) NOT NULL AUTO_INCREMENT, " +
+                        "`folder_name` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_general_ci', " +
+                        "`parent_folder_id` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_general_ci', " +
+                        "PRIMARY KEY (`_id`) USING BTREE, " +
+                        "INDEX `parent_folder_id` (`parent_folder_id`) USING BTREE " +
+                    ")" +
+                    "COLLATE='utf8mb4_general_ci' " +
+                    "ENGINE=InnoDB";
+
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+
+                cmd.ExecuteNonQuery();
+
+                conn.Close();
             }
         }
         public static MySqlDataReader GetFolderDocumentRecords()

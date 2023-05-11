@@ -34,12 +34,12 @@ internal class Program
             }
             else 
             {
-                Console.WriteLine("<CUSTOMER DISCOVERY HAS FAILED.>");
+                Console.WriteLine("<CUSTOMER DISCOVERY HAS FAILED>");
             }
         }
         else 
         {
-            Console.WriteLine("<INVALID CLIENT CREDENTIALS PROVIDED.>");
+            Console.WriteLine("<INVALID CLIENT CREDENTIALS PROVIDED>");
         }
     }
     private static void BusinessLogic(string parentFolderName,string authToken,string customerId,string libraryName,dynamic recordset)
@@ -82,7 +82,7 @@ internal class Program
                 tailingPathPart = documentPath.Substring(documentPath.IndexOf(parentFolderName) + parentFolderName.Length);
                 string[] subFolder = tailingPathPart.Split(backslash);
 
-                Console.WriteLine("<LIST OF FOLDERS|FILE> " + tailingPathPart);
+                Console.WriteLine("<LIST OF FOLDER|FILE> " + tailingPathPart);
 
                 for (int i = 1; i < subFolder.Length; i++)
                 {
@@ -101,10 +101,8 @@ internal class Program
                         }
                         else 
                         { 
-                            //-.TODO: <Add a method to track previous folder IDs for folder already created.>
+                            //-.TODO: <Add a method to track previous folder IDs for folder already created from a DB.>
                         }
-                        //-.make as processed.
-                        DataRepository.FlagRecordAsProcessed(recordId);
                     }
                     else
                     {
@@ -120,23 +118,23 @@ internal class Program
                             }
                             else 
                             {
-                                //-.TODO: <Add a method to track previous folder IDs for folder already created.>
+                                //-.TODO: <Add a method to track previous folder IDs for folder already created from a DB.>
                             }
                         }
                         else
                         {
                             createDate = ProgramUtility.FormatDateTime(createDate);
                             editDate = ProgramUtility.FormatDateTime(editDate);
-                            Console.WriteLine("<THIS IS OUR FILE> " + subFolder[i]);
+                            Console.WriteLine("<FILE(S)> " + subFolder[i]);
                             dynamic createFilePayload = ProgramJson.BuildFileUploadFormPayload(file, createDate, editDate, documentPath);
                             Console.WriteLine(createFilePayload);
                             //-.method call.
                             string serverResponse = FileUploadRequest(authToken, customerId, libraryName, childFolderId, createFilePayload, documentPath);
                             Console.WriteLine(serverResponse);
+                            //-.make as processed.
+                            DataRepository.FlagRecordAsProcessed(recordId);
                         }
                         //-----.Console.WriteLine("---> " + subFolder[i]+"   ddd  "+childFolderId +"  0000  "+ subFolder[i]);
-                        //-.make as processed.
-                        DataRepository.FlagRecordAsProcessed(recordId);
                     }
                     createdFolders += backslash + subFolder[i];
                 }
@@ -144,7 +142,7 @@ internal class Program
             }
             else
             {
-                Console.WriteLine("<PARENT FOLDER NOT FOUND.>");
+                Console.WriteLine("<PARENT FOLDER NOT FOUND>");
                 Task.Delay(100);
             }
         }
