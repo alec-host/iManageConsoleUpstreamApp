@@ -34,12 +34,12 @@ internal class Program
             }
             else 
             {
-                Console.WriteLine("CUSTOMER DISCOVERY HAS FAILED.");
+                Console.WriteLine("<CUSTOMER DISCOVERY HAS FAILED.>");
             }
         }
         else 
         {
-            Console.WriteLine("INVALID CLIENT CREDENTIALS PROVIDED.");
+            Console.WriteLine("<INVALID CLIENT CREDENTIALS PROVIDED.>");
         }
     }
     private static void BusinessLogic(string parentFolderName,string authToken,string customerId,string libraryName,dynamic recordset)
@@ -82,7 +82,7 @@ internal class Program
                 tailingPathPart = documentPath.Substring(documentPath.IndexOf(parentFolderName) + parentFolderName.Length);
                 string[] subFolder = tailingPathPart.Split(backslash);
 
-                Console.WriteLine("<LIST OF FOLDERS,FILE> " + tailingPathPart);
+                Console.WriteLine("<LIST OF FOLDERS|FILE> " + tailingPathPart);
 
                 for (int i = 1; i < subFolder.Length; i++)
                 {
@@ -90,12 +90,19 @@ internal class Program
                     {
                         //------.Console.WriteLine("<start> " + parentId + " " + subFolder[i]);
                         //------.Console.WriteLine("<LOOP_LOGIC> " + custom2);
-                        dynamic createFolderPayload = ProgramJson.BuildFolderCreationBodyPayload(_class, custom1, custom2, custom29, subFolder[i]);
-                        string serverResponse = FolderCreateRequest(authToken, customerId, libraryName, parentId, createFolderPayload);
-                        Console.WriteLine(serverResponse);
-                        //-.method call.
-                        childFolderId = ProgramJson.GetParentFolderIdFromResponse(serverResponse);
-                        Console.WriteLine(childFolderId);
+                        if (createdFolders.Trim().Contains(subFolder[i]) == false)
+                        {
+                            dynamic createFolderPayload = ProgramJson.BuildFolderCreationBodyPayload(_class, custom1, custom2, custom29, subFolder[i]);
+                            string serverResponse = FolderCreateRequest(authToken, customerId, libraryName, parentId, createFolderPayload);
+                            Console.WriteLine(serverResponse);
+                            //-.method call.
+                            childFolderId = ProgramJson.GetParentFolderIdFromResponse(serverResponse);
+                            Console.WriteLine(childFolderId);
+                        }
+                        else 
+                        { 
+                            //-.TODO: <Add a method to track previous folder IDs for folder already created.>
+                        }
                         //-.make as processed.
                         DataRepository.FlagRecordAsProcessed(recordId);
                     }
@@ -103,11 +110,18 @@ internal class Program
                     {
                         if (subFolder[i].Contains(".") == false)
                         {
-                            dynamic createFolderPayload = ProgramJson.BuildFolderCreationBodyPayload(_class, custom1, custom2, custom29, subFolder[i]);
-                            string serverResponse = FolderCreateRequest(authToken, customerId, libraryName, parentId, createFolderPayload);
-                            Console.WriteLine(serverResponse);
-                            //-.method call.
-                            childFolderId = ProgramJson.GetParentFolderIdFromResponse(serverResponse);
+                            if (createdFolders.Trim().Contains(subFolder[i]) == false)
+                            {
+                                dynamic createFolderPayload = ProgramJson.BuildFolderCreationBodyPayload(_class, custom1, custom2, custom29, subFolder[i]);
+                                string serverResponse = FolderCreateRequest(authToken, customerId, libraryName, parentId, createFolderPayload);
+                                Console.WriteLine(serverResponse);
+                                //-.method call.
+                                childFolderId = ProgramJson.GetParentFolderIdFromResponse(serverResponse);
+                            }
+                            else 
+                            {
+                                //-.TODO: <Add a method to track previous folder IDs for folder already created.>
+                            }
                         }
                         else
                         {
@@ -130,7 +144,7 @@ internal class Program
             }
             else
             {
-                Console.WriteLine("PARENT FOLDER NOT FOUND.");
+                Console.WriteLine("<PARENT FOLDER NOT FOUND.>");
                 Task.Delay(100);
             }
         }
@@ -139,13 +153,15 @@ internal class Program
     {
         //-.client credentials.
         var collection = new List<KeyValuePair<string, string>>();
-        
+
+        /*
         collection.Add(new("username", "MY_EMAIL"));
         collection.Add(new("password", "MY_PASSWORD"));
         collection.Add(new("grant_type", "password"));
         collection.Add(new("client_id", "MY_KEY"));
         collection.Add(new("client_secret", "MY_SECRET"));
-        
+        */
+
         ITokenInterface tokenInterface = new AuthApiHandler();
         string getTokenEndpoint = BASE_URL + "/auth/oauth2/token";
         HttpResponseMessage responseMessage = new HttpService(tokenInterface).GrantTokenService(getTokenEndpoint, collection);
