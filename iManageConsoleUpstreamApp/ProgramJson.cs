@@ -1,5 +1,4 @@
-﻿using Google.Protobuf;
-using iManageConsoleUpstreamApp.Api.DocumentPoco;
+﻿using iManageConsoleUpstreamApp.Api.DocumentPoco;
 using iManageConsoleUpstreamApp.Api.FolderPoco;
 using iManageConsoleUpstreamApp.Api.Payload;
 using Newtonsoft.Json;
