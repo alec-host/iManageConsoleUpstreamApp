@@ -108,24 +108,24 @@ namespace iManageConsoleUpstreamApp.Db
                 cmd.ExecuteNonQuery();
                 conn.Close();
         }
-        public static void TrackSubFolderId(string createdFolderName,string parentFolderId) 
+        public static void TrackSubFolderCreatedInformation(string createdFolderName,string parentFolderId) 
         {
             MySqlConnection conn = new Db().MySqlDbConnectService();
             if (conn.State == ConnectionState.Closed)
                 conn.Open();
-            string sql = "INSERT " +
-                         "INTO " +
-                         "`tbl_sub_folder` " +
-                         "(`folder_name`,`parent_folder_id`) " +
-                         "VALUES  " +
-                         "(@folderName,@folderId) " +
-                         "WHERE " +
-                         "`parent_folder_id` != @folderId";
-            MySqlCommand cmd = new MySqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@folderName", createdFolderName);
-            cmd.Parameters.AddWithValue ("@folderId", parentFolderId);
-            cmd.ExecuteNonQuery();
-            conn.Close();
+                string sql = "INSERT " +
+                             "INTO " +
+                             "`tbl_sub_folder` " +
+                             "(`folder_name`,`parent_folder_id`) " +
+                             "VALUES  " +
+                             "(@folderName,@folderId) " +
+                             "WHERE " +
+                             "`parent_folder_id` != @folderId";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@folderName", createdFolderName);
+                cmd.Parameters.AddWithValue ("@folderId", parentFolderId);
+                cmd.ExecuteNonQuery();
+                conn.Close();
         }
     }
 }
