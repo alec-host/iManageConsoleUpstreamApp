@@ -1,6 +1,7 @@
 ﻿using IronXL;
 using System.Data;
 using System.Globalization;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace iManageConsoleUpstreamApp
 {
@@ -13,7 +14,7 @@ namespace iManageConsoleUpstreamApp
         }
         public static string GetFileExtension(string filePath)
         {
-            string fileExtension = Path.GetExtension(filePath).Trim();
+            string fileExtension = filePath.Substring(filePath.LastIndexOf('.') + 1).Trim();
             return fileExtension;
         }
         private static void ReadExcel()

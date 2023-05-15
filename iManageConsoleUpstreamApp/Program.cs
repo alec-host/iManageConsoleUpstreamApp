@@ -35,19 +35,19 @@ internal class Program
             }
             else 
             {
-                Console.WriteLine("<CUSTOMER DISCOVERY HAS FAILED>");
+                Console.WriteLine("+<CUSTOMER DISCOVERY HAS FAILED>+");
             }
         }
         else 
         {
-            Console.WriteLine("<INVALID CLIENT CREDENTIALS PROVIDED>");
+            Console.WriteLine("+<INVALID CLIENT CREDENTIALS PROVIDED>+");
         }
     }
     private static void BusinessLogic(string parentFolderName,string authToken,string customerId,string libraryName,dynamic recordset)
     {
         int recordId;
         string file = String.Empty;
-        string createdFolders = String.Empty;
+        string? createdFolders = String.Empty;
         string _class = String.Empty;
         string custom1 = String.Empty;
         string custom2 = String.Empty;
@@ -56,11 +56,10 @@ internal class Program
         string documentPath = String.Empty;
         string tailingPathPart = String.Empty;
         string firstChildFolderId = String.Empty;
-        string childFolderId = String.Empty;
+        string? childFolderId = String.Empty;
         string createDate = String.Empty;
         string editDate = String.Empty;
         
-        //var recordset = DataRepository.GetFolderDocumentRecords();
         //-.convert recodset to json.
         dynamic dataObject = JsonConvert.DeserializeObject(Utiliy.SqlDataToJson(recordset));
 
@@ -80,31 +79,29 @@ internal class Program
             if (documentPath.Contains(parentFolderName) == true)
             {
                 string backslash = @"\";
-
                 tailingPathPart = documentPath.Substring(documentPath.IndexOf(parentFolderName) + parentFolderName.Length);
                 string[] subFolder = tailingPathPart.Split(backslash);
-
-                Console.WriteLine("<LIST OF FOLDER|FILE> " + tailingPathPart);
-
+                Console.WriteLine("+<LIST OF CREATED FOLDERS>+ "+createdFolders);
+                createdFolders = DataRepository.GetFolderList();
                 for (int i = 1; i < subFolder.Length; i++)
                 {
                     if (i == 1)
                     {
-                        //------.Console.WriteLine("<start> " + parentId + " " + subFolder[i]);
-                        //------.Console.WriteLine("<LOOP_LOGIC> " + custom2);
-                        if (createdFolders.Trim().Contains(subFolder[i]) == false)
+                        Console.WriteLine("+<DO WE HAVE THE FOLDERS>+ " + createdFolders);
+                        if (createdFolders!.Trim().Contains(subFolder[1]) == false && createdFolders is not null)
                         {
-                            dynamic createFolderPayload = ProgramJson.BuildFolderCreationBodyPayload(_class,custom1,custom2,custom29,subFolder[i]);
+                            dynamic createFolderPayload = ProgramJson.BuildFolderCreationBodyPayload(_class,custom1,custom2,custom29,subFolder[1]);
                             string serverResponse = FolderCreateRequest(authToken,customerId,libraryName,parentId,createFolderPayload);
                             Console.WriteLine(serverResponse);
                             //-.method call.
                             firstChildFolderId = ProgramJson.GetParentFolderIdFromResponse(serverResponse);
                             Console.WriteLine(firstChildFolderId);
                             //-.store to db foldername against parent id.
-                            DataRepository.TrackSubFolderCreatedInformation(subFolder[i],parentId);
+                            DataRepository.TrackSubFolderCreatedInformation(subFolder[1],parentId);
                         }
                         else 
-                        { 
+                        {
+                            Console.WriteLine("IM SUPPOSED TO BE IMPLEMENTED...");
                             //-.TODO: <Add a method to track previous folder IDs for folder already created from a DB.>
                         }
                     }
@@ -112,7 +109,8 @@ internal class Program
                     {
                         if (subFolder[i].Contains(".") == false)
                         {
-                            if (createdFolders.Trim().Contains(subFolder[i]) == false)
+                            Console.WriteLine("+<DO WE HAVE THE FOLDERS>+ " + createdFolders);
+                            if (createdFolders!.Trim().Contains(subFolder[i]) == false && createdFolders is not null)
                             {
                                 dynamic createFolderPayload = ProgramJson.BuildFolderCreationBodyPayload(_class,custom1,custom2,custom29,subFolder[i]);
                                 if (firstChildFolderId.Trim().Length != 0)
@@ -122,22 +120,22 @@ internal class Program
                                     //-.method call.
                                     childFolderId = ProgramJson.GetParentFolderIdFromResponse(serverResponse);
                                     //-.store to db foldername against parent id.
-                                    DataRepository.TrackSubFolderCreatedInformation(subFolder[i],firstChildFolderId);
-                                    Console.WriteLine("Am boxed by the Parent "+firstChildFolderId);
+                                    DataRepository.TrackSubFolderCreatedInformation(subFolder[i],childFolderId);
                                 }
                                 else 
                                 {
+                                    childFolderId = DataRepository.GetParentFolderId(subFolder[i-1]);
                                     string serverResponse = FolderCreateRequest(authToken,customerId,libraryName,childFolderId,createFolderPayload);
                                     Console.WriteLine(serverResponse);
                                     //-.method call.
                                     childFolderId = ProgramJson.GetParentFolderIdFromResponse(serverResponse);
                                     //-.store to db foldername against parent id.
                                     DataRepository.TrackSubFolderCreatedInformation(subFolder[i],childFolderId);
-                                    Console.WriteLine("The other Guy");
                                 }
                             }
                             else 
                             {
+                                Console.WriteLine("IM SUPPOSED TO BE IMPLEMENTED...");
                                 //-.TODO: <Add a method to track previous folder IDs for folder already created from a DB.>
                             }
                         }
@@ -145,25 +143,25 @@ internal class Program
                         {
                             createDate = ProgramUtility.FormatDateTime(createDate);
                             editDate = ProgramUtility.FormatDateTime(editDate);
-                            Console.WriteLine("<FILE(S)> " + subFolder[i]);
-                            dynamic createFilePayload = ProgramJson.BuildFileUploadFormPayload(file, createDate, editDate, documentPath);
+                            Console.WriteLine("<MAMA ROCKS> " + subFolder[i-1] +" <ROCK N ROLL > " + subFolder[i]);
+                            //-.get folder id.
+                            childFolderId = DataRepository.GetParentFolderId(subFolder[i-1]);
+                            dynamic createFilePayload = ProgramJson.BuildFileUploadFormPayload(file,createDate,editDate,documentPath);
                             Console.WriteLine(createFilePayload);
                             //-.method call.
-                            string serverResponse = FileUploadRequest(authToken, customerId, libraryName, childFolderId, createFilePayload, documentPath);
+                            string serverResponse = FileUploadRequest(authToken,customerId,libraryName,childFolderId,createFilePayload,documentPath);
                             Console.WriteLine(serverResponse);
                             //-.make as processed.
                             DataRepository.FlagRecordAsProcessed(recordId);
                         }
-                        //-----.Console.WriteLine("---> " + subFolder[i]+"   ddd  "+childFolderId +"  0000  "+ subFolder[i]);
                     }
-                    createdFolders += backslash + subFolder[i];
                 }
-                Task.Delay(100);
+                Task.Delay(20);
             }
             else
             {
                 Console.WriteLine("<PARENT FOLDER NOT FOUND>");
-                Task.Delay(100);
+                Task.Delay(20);
             }
         }
     }

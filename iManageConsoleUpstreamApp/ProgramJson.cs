@@ -66,11 +66,13 @@ namespace iManageConsoleUpstreamApp
         public static dynamic BuildFileUploadFormPayload(string fileName, string create_date, string edit_date, string filePath)
         {
             //-.method call.
-            string fileExtension = ProgramUtility.GetFileExtension(fileName);
+            string fileExtension = ProgramUtility.GetFileExtension(filePath);
+
+            Console.WriteLine(""+fileExtension);
 
             DocProfile document = new DocProfile();
             document.comment = "FiLe-PaTh " + filePath;
-            document.name = fileName.Replace(fileExtension, "").Trim();
+            document.name = fileName.Replace("."+fileExtension,"").Trim();
             document.type = fileExtension.Replace(".", "").ToUpper();
             document.file_create_date = create_date.ToString();
             document.file_edit_date = edit_date.ToString();

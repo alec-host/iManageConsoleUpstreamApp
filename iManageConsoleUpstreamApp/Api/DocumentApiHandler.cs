@@ -1,4 +1,6 @@
-﻿namespace iManageConsoleUpstreamApp.Api
+﻿using System.Net;
+
+namespace iManageConsoleUpstreamApp.Api
 {
     public class DocumentApiHandler : IDocumentApiInterface,IFolderApiInterface
     {
@@ -9,6 +11,9 @@
         }
         public HttpResponseMessage HttpPostAttachedFile(string endPoint,dynamic payload,string filePath)
         {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+
+
             var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Post,endPoint);
             request.Headers.Add("X-Auth-Token", token);
